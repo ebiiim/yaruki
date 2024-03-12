@@ -220,7 +220,9 @@ def render_print_form(dg: DeltaGenerator):
         outdir = Path(st.session_state.config["print_svg_dir"]).resolve()
         if not outdir.exists():
             outdir.mkdir(parents=True)
-        outfile = outdir / f"print_{datetime.datetime.now().strftime("%Y%m%d%H%M%S%f")}.svg"
+        # replace illegal characters https://stackoverflow.com/questions/7406102/create-sane-safe-filename-from-any-unsafe-string
+        # save to: print-YYYYMMDD-HHHH-<project>-<title>.svg
+        outfile = outdir / re.sub(r"[/\\?%*:|\"<>\x7F\x00-\x1F]", "_", f"print-{datetime.datetime.now().strftime("%Y%m%d-%H%M")}-{"_" if data["project"] == "" else data["project"]}-{data["title"]}.svg")
         with open(outfile, "w", encoding="utf-8") as f:
             f.write(sout)
 
