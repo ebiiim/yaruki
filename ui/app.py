@@ -216,15 +216,18 @@ def render_print_form(dg: DeltaGenerator):
             time.sleep(600)
             st.rerun()
 
-        # save SVG
-        outdir = Path(st.session_state.config["print_svg_dir"]).resolve()
+        # save to file
+        outdir = Path(st.session_state.config["output_dir"]).resolve()
         if not outdir.exists():
             outdir.mkdir(parents=True)
         # replace illegal characters https://stackoverflow.com/questions/7406102/create-sane-safe-filename-from-any-unsafe-string
-        # save to: print-YYYYMMDD-HHHH-<project>-<title>.svg
-        outfile = outdir / re.sub(r"[/\\?%*:|\"<>\x7F\x00-\x1F]", "_", f"print-{datetime.datetime.now().strftime("%Y%m%d-%H%M")}-{"_" if data["project"] == "" else data["project"]}-{data["title"]}.svg")
-        with open(outfile, "w", encoding="utf-8") as f:
+        # save to: print-YYYYMMDD-HHHHSS-SUBSEC-<project>-<title>.[svg,receipt]
+        out_svg = outdir / re.sub(r"[/\\?%*:|\"<>\x7F\x00-\x1F]", "_", f"print-{datetime.datetime.now().strftime("%Y%m%d-%H%M%S-%f")}-{"_" if data["project"] == "" else data["project"]}-{data["title"]}.svg")
+        with open(out_svg, "w", encoding="utf-8") as f:
             f.write(sout)
+        out_receipt = outdir / re.sub(r"[/\\?%*:|\"<>\x7F\x00-\x1F]", "_", f"print-{datetime.datetime.now().strftime("%Y%m%d-%H%M%S-%f")}-{"_" if data["project"] == "" else data["project"]}-{data["title"]}.receipt")
+        with open(out_receipt, "w", encoding="utf-8") as f:
+            f.write(rendered)
 
         c_status.success("印刷しました")
         time.sleep(2)

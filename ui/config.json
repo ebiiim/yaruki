@@ -12,6 +12,6 @@
     ],
     "config": {
         "template_path": "default.receipt.tmpl",
-        "print_svg_dir": "output"
+        "output_dir": "output"
     }
 }
