@@ -4,7 +4,7 @@
     ```
 
 2. Edit files below to configure the app
-   - `config.json` edit parameters except fields in `internal`
+   - `config.json`
 
    Config file can be set with environment variable `YARUKI_UI_CONFIG`.
 

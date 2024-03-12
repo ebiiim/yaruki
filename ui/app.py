@@ -190,12 +190,9 @@ def render_print_form(dg: DeltaGenerator):
     sout, serr, ret = call_preview(rendered)
     if ret != 0:
         print("failed to create preview", "code:", ret, "stderr:", serr)
-        st.session_state.internal["preview_svg"] = ""
-
-    st.session_state.internal["preview_svg"] = sout
 
     c52.write("###### プレビュー")
-    svgstr = st.session_state.internal["preview_svg"]
+    svgstr = sout
     # resize SVG to fit the container
     svgstr = re.sub(r'<svg width="(.+px)" height="(.+px)"', r'<svg width="280px" height="100%"', svgstr)
     c52.write(svgstr, unsafe_allow_html=True)

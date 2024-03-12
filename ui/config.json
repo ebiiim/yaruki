@@ -13,8 +13,5 @@
     "config": {
         "template_path": "default.receipt.tmpl",
         "print_svg_dir": "output"
-    },
-    "internal": {
-        "preview_svg": ""
     }
 }
