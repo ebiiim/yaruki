@@ -9,5 +9,5 @@
 受付時刻 |^^^{{ receipt_date }}
 締切時刻 |^^^{{ due_date }}
 所要時間 |^^^{{ time_required -}}
-{% if body is defined %}
+{% if body != "" %}
 \nメモ |{{ body }}{% endif -%}
