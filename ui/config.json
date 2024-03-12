@@ -1,0 +1,20 @@
+{
+    "projects": [
+        "プロジェクト1",
+        "プロジェクト2",
+        "プロジェクト3",
+        "プロジェクト4"
+    ],
+    "priorities": [
+        "なるはや",
+        "最優先",
+        "じっくり検討"
+    ],
+    "config": {
+        "template_path": "default.receipt.tmpl",
+        "print_svg_dir": "output"
+    },
+    "internal": {
+        "preview_svg": ""
+    }
+}

@@ -1,0 +1,8 @@
+{% if priority is defined %}{{ priority }}{% endif -%}
+{% if project is defined %}{{ project }}{% endif -%}
+|^^{{ title }}
+{width:9 *}
+受付時刻 |{{ receipt_date }}
+締切時刻 |{{ due_date }}
+所要時間 |{{ time_required -}}
+{% if body is defined %}{{ body }}{% endif -%}

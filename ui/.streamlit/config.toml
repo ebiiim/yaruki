@@ -1,0 +1,40 @@
+# `streamlit config show` to see all available config options
+
+[logger]
+# options: "error" | "warning" | "info" | "debug"
+level = "info"
+
+[client]
+showErrorDetails = true
+# options: "auto" | "developer" | "viewer" | "minimal"
+toolbarMode = "auto"
+
+[runner]
+magicEnabled = false
+
+[server]
+runOnSave = true
+address = "0.0.0.0"
+port = 8501
+baseUrlPath = ""
+# serve files from directory="static" as path=`/app/static/<filename>`.
+enableStaticServing = true
+
+[browser]
+gatherUsageStats = false
+# address for user to access (just for display)
+serverAddress = "localhost"
+serverPort = 8501
+
+[theme]
+# options: "light" | "dark"
+#base =
+
+# use #rrggbb notation
+#primaryColor =
+#backgroundColor =
+#secondaryBackgroundColor =
+#textColor =
+
+# options: "sans serif" | "serif" | "monospace"
+#font =

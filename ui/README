@@ -1,0 +1,14 @@
+1. Initial setup
+    ```
+    pip install -r requirements.txt
+    ```
+
+2. Edit files below to configure the app
+   - `config.json` edit parameters except fields in `internal`
+
+   Config file can be set with environment variable `YARUKI_UI_CONFIG`.
+
+3. Run
+    ```
+    streamlit run app.py
+    ```
