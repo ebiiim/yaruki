@@ -1,0 +1,15 @@
+{
+  "name": "printer",
+  "version": "0.0.0",
+  "description": "receipt printer",
+  "main": "",
+  "scripts": {
+    "preview": "node preview.js",
+    "print": "node print.js"
+  },
+  "author": "",
+  "license": "",
+  "dependencies": {
+    "receiptline": "^1.16.0"
+  }
+}
