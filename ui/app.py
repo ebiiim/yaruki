@@ -212,7 +212,14 @@ def render_print_form(dg: DeltaGenerator):
         c_status.info("印刷中...")
         sout, serr, ret = call_print(rendered)
         if ret != 0:
-            c_status.error(f"印刷に失敗しました code: `{ret}`, stderr: ```{serr}```")
+            c_status.error(f"""
+印刷に失敗しました\n
+code: `{ret}`\n
+stderr:\n
+```
+{serr}
+```
+""")
             time.sleep(600)
             st.rerun()
 
