@@ -65,16 +65,16 @@ def render_print_form(dg: DeltaGenerator):
     c = dg.container()
     c.write("###### プロジェクト")
     pjs = []  # selected projects [bool, ...]
-    c01, c02, c03, c04 = c.columns(4)
+    c11, c12, c13, c14 = c.columns(4)
     for idx, pj in enumerate(st.session_state["projects"]):
         if idx % 4 == 0:
-            pjs.append(c01.checkbox(pj))
+            pjs.append(c11.checkbox(pj))
         if idx % 4 == 1:
-            pjs.append(c02.checkbox(pj))
+            pjs.append(c12.checkbox(pj))
         if idx % 4 == 2:
-            pjs.append(c03.checkbox(pj))
+            pjs.append(c13.checkbox(pj))
         if idx % 4 == 3:
-            pjs.append(c04.checkbox(pj))
+            pjs.append(c14.checkbox(pj))
 
     title = c.text_input("###### タイトル", placeholder="○○さんのメールに返信する")
 
@@ -105,25 +105,26 @@ def render_print_form(dg: DeltaGenerator):
     tB = tA + datetime.timedelta(days=1)
     tB = tB.replace(hour=19)
 
-    c11, c12, c13, c14 = c.columns(4)
-    c12.write("")  # spacer
-    c13.write("")  # spacer
-    c14.write("")  # spacer
-    due_today = c12.checkbox("**本日中**")
-    due_tomorrow = c13.checkbox("**明日中**")
-    due_week = c14.checkbox("**今週中**")
-    due_asa = c12.checkbox("朝イチ")
-    due_gogo = c13.checkbox("午後イチ")
-    due_teiji = c14.checkbox("定時", value=True)
+    c41, c42, c43, c44 = c.columns(4)
+    c42.write("")  # spacer
+    c43.write("")  # spacer
+    c44.write("")  # spacer
+    due_today = c42.checkbox("**本日中**")
+    due_tomorrow = c43.checkbox("**明日中**")
+    due_week = c44.checkbox("**今週中**")
+    due_asa = c42.checkbox("朝イチ")
+    due_gogo = c43.checkbox("午後イチ")
+    due_teiji = c44.checkbox("定時", value=True)
     due_date_disabled = True if due_today or due_tomorrow or due_week else False
-    due_date = c11.date_input("###### 締切日", value=tB, disabled=due_date_disabled)
+    due_date = c41.date_input("###### いつまで", value=tB, disabled=due_date_disabled)
 
-    c51, c52, _ = c.columns(3)
-    body = c51.text_area("###### 本文", height=210, placeholder="資料がどっかにあるはず")
+    c51, c52 = c.columns(2)
+    body = c51.text_area("###### メモ", height=228, placeholder="資料がどっかにあるはず")
+    c52.write("###### プレビュー")
 
-    c41, c42, _, _, _, _ = c.columns(6)
-    btn_print = c41.button("印刷", type="primary")
-    btn_reset = c42.button("リセット")
+    c61, c62, _, _, _, _ = c.columns(6)
+    btn_print = c61.button("印刷", type="primary")
+    btn_reset = c62.button("リセット")
 
     # construct print data
     data = {
@@ -191,11 +192,11 @@ def render_print_form(dg: DeltaGenerator):
     if ret != 0:
         print("failed to create preview", "code:", ret, "stderr:", serr)
 
-    c52.write("###### プレビュー")
     svgstr = sout
     # resize SVG to fit the container
     svgstr = re.sub(r'<svg width="(.+px)" height="(.+px)"', r'<svg width="280px" height="100%"', svgstr)
-    c52.write(svgstr, unsafe_allow_html=True)
+    c52c = c52.container(border=True)
+    c52c.write(svgstr, unsafe_allow_html=True)
 
     is_printable = True
     if data["title"] == "":
