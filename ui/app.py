@@ -4,7 +4,8 @@ import time
 import datetime
 from typing import Tuple
 from pathlib import Path
-from subprocess import Popen, PIPE, STDOUT
+from subprocess import Popen, PIPE
+import re
 import streamlit as st
 from streamlit.delta_generator import DeltaGenerator
 from jinja2 import Template
@@ -100,7 +101,7 @@ def render_print_form(dg: DeltaGenerator):
     d3d = c36.checkbox("3日")
 
     tA = datetime.datetime.now()
-    tA = tA.replace(minute=0, second=0, microsecond=0)
+    tA = tA.replace(second=0, microsecond=0)
     tB = tA + datetime.timedelta(days=1)
     tB = tB.replace(hour=19)
 
@@ -138,21 +139,21 @@ def render_print_form(dg: DeltaGenerator):
     if title != "":
         data["title"] = title
     if body != "":
-        data["body"] = f"\nメモ |{body}"
+        data["body"] = f"{body}"
 
     for idx, pj in enumerate(st.session_state["projects"]):
         if pjs[idx]:
-            data["project"] = f"|^`{pj}`\n"
+            data["project"] = f"{pj}"
     for idx, prio in enumerate(st.session_state["priorities"]):
         if prios[idx]:
-            data["priority"] = f"|`{prio}`\n"
+            data["priority"] = f"{prio}"
 
     if due_today:
-        data["due_date"] = "^`本日中`"
+        data["due_date"] = "`本日中`"
     elif due_tomorrow:
-        data["due_date"] = "^`明日中`"
+        data["due_date"] = "`明日中`"
     elif due_week:
-        data["due_date"] = "^`今週中`"
+        data["due_date"] = "`今週中`"
     elif due_asa:
         data["due_date"] = f"`{due_date.strftime("%m/%d")} 朝イチ`"
     elif due_gogo:
@@ -161,17 +162,17 @@ def render_print_form(dg: DeltaGenerator):
         data["due_date"] = f"`{due_date.strftime("%m/%d")} 定時`"
 
     if d10:
-        data["time_required"] = "^10分"
+        data["time_required"] = "10分"
     elif d30:
-        data["time_required"] = "^30分"
+        data["time_required"] = "30分"
     elif d120:
-        data["time_required"] = "^2時間"
+        data["time_required"] = "2時間"
     elif dhd:
-        data["time_required"] = "^半日"
+        data["time_required"] = "半日"
     elif d1d:
-        data["time_required"] = "^1日"
+        data["time_required"] = "1日"
     elif d3d:
-        data["time_required"] = "^3日"
+        data["time_required"] = "3日"
 
     print("current data:", data)
 
@@ -194,7 +195,10 @@ def render_print_form(dg: DeltaGenerator):
     st.session_state.internal["preview_svg"] = sout
 
     c52.write("###### プレビュー")
-    c52.write(st.session_state.internal["preview_svg"], unsafe_allow_html=True)
+    svgstr = st.session_state.internal["preview_svg"]
+    # resize SVG to fit the container
+    svgstr = re.sub(r'<svg width="(.+px)" height="(.+px)"', r'<svg width="280px" height="100%"', svgstr)
+    c52.write(svgstr, unsafe_allow_html=True)
 
     is_printable = True
     if data["title"] == "":

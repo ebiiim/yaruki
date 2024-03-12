@@ -1,8 +1,13 @@
-{% if priority is defined %}{{ priority }}{% endif -%}
-{% if project is defined %}{{ project }}{% endif -%}
-|^^{{ title }}
+{% if priority == "" and project != "" %}|^^{{ project }}
+{% endif -%}
+{% if priority != "" and project == "" %}|^^`{{ priority }}`
+{% endif -%}
+{% if priority != "" and project != "" %}|^^`{{ priority }}` {{ project }}
+{% endif -%}
+|^^`{{ title }}`
 {width:9 *}
-受付時刻 |{{ receipt_date }}
-締切時刻 |{{ due_date }}
-所要時間 |{{ time_required -}}
-{% if body is defined %}{{ body }}{% endif -%}
+受付時刻 |^^^{{ receipt_date }}
+締切時刻 |^^^{{ due_date }}
+所要時間 |^^^{{ time_required -}}
+{% if body is defined %}
+\nメモ |{{ body }}{% endif -%}
