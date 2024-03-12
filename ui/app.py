@@ -140,7 +140,7 @@ def render_print_form(dg: DeltaGenerator):
     if title != "":
         data["title"] = title
     if body != "":
-        data["body"] = f"{body}"
+        data["body"] = f"{body.replace("\n", "\\n")}"  # escape newline
 
     for idx, pj in enumerate(st.session_state["projects"]):
         if pjs[idx]:
