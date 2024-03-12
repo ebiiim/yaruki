@@ -156,9 +156,9 @@ def render_print_form(dg: DeltaGenerator):
     elif due_week:
         data["due_date"] = "`今週中`"
     elif due_asa:
-        data["due_date"] = f"`{due_date.strftime("%m/%d")} 朝イチ`"
+        data["due_date"] = f"`{due_date.strftime("%m/%d")} 朝`"
     elif due_gogo:
-        data["due_date"] = f"`{due_date.strftime("%m/%d")} 午後イチ`"
+        data["due_date"] = f"`{due_date.strftime("%m/%d")} 昼`"
     elif due_teiji:
         data["due_date"] = f"`{due_date.strftime("%m/%d")} 定時`"
 
