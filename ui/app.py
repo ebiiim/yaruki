@@ -93,8 +93,8 @@ def render_print_form(dg: DeltaGenerator):
 
     c.write("###### 所要時間")
     c31, c32, c33, c34, c35, c36 = c.columns(6)
-    d10 = c31.checkbox("10分")
-    d30 = c32.checkbox("30分")
+    d30 = c31.checkbox("30分")
+    d60 = c32.checkbox("1時間")
     d120 = c33.checkbox("2時間")
     dhd = c34.checkbox("半日")
     d1d = c35.checkbox("1日")
@@ -162,10 +162,10 @@ def render_print_form(dg: DeltaGenerator):
     elif due_teiji:
         data["due_date"] = f"`{due_date.strftime("%m/%d")} 定時`"
 
-    if d10:
-        data["time_required"] = "10分"
-    elif d30:
+    if d30:
         data["time_required"] = "30分"
+    elif d60:
+        data["time_required"] = "1時間"
     elif d120:
         data["time_required"] = "2時間"
     elif dhd:
