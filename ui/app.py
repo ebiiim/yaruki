@@ -16,17 +16,18 @@ from logging import getLogger  # nopep8
 lg = getLogger(__name__)
 # print all logs to stderr anyway
 import sys  # nopep8
-from logging import StreamHandler, DEBUG  # nopep8
-lg.setLevel(DEBUG)
+from logging import StreamHandler, INFO, DEBUG  # nopep8
+lv = INFO if os.environ.get("YARUKI_UI_LOG_LEVEL", "INFO") == "INFO" else DEBUG
+lg.setLevel(lv)
 sh = StreamHandler(sys.stderr)
-sh.setLevel(DEBUG)
+sh.setLevel(lv)
 lg.addHandler(sh)
 
 
 def load_defaults() -> dict:
     with open(os.environ.get("YARUKI_UI_CONFIG", "config.json"), "r", encoding="utf-8") as f:
         j = json.load(f)
-        lg.info("loaded defaults: %s", j)
+        lg.debug("loaded defaults: %s", j)
         return j
 
 
@@ -34,9 +35,9 @@ def init_session_state():
     params = load_defaults()
     for k, v in params.items():
         if k not in st.session_state:
-            lg.info("init st.session_state[%s]: %s", k, v)
+            lg.debug("init st.session_state[%s]: %s", k, v)
             st.session_state[k] = v
-    lg.info("init st.session_state: %s", st.session_state)
+    lg.debug("init st.session_state: %s", st.session_state)
 
 
 def set_title(layout: str = "centered"):
@@ -53,7 +54,7 @@ def css_apply():
 {"\n".join([v for k, v in st.session_state.style["__css"].items()])}
 </style>
 """
-    print("css:", css)
+    lg.debug("css loaded: %s", css)
     st.markdown(css, unsafe_allow_html=True)
 
 
@@ -108,9 +109,11 @@ def call_preview(msg: str, basedir: str = "..") -> Tuple[str, str, int]:
 
 
 def call_print(msg: str, basedir: str = "..") -> Tuple[str, str, int]:
+    lg.info("call_print msg=%s", msg)
     cmd = f"npm run --prefix {basedir}/printer --silent print -- -"
     p = Popen(cmd.split(' '), stdout=PIPE, stdin=PIPE, stderr=PIPE, text=True)
     stdout, stderr = p.communicate(input=msg)
+    lg.info("call_print returned stdout=%s stderr=%s code=%s", stdout, stderr, p.returncode)
     return stdout, stderr, p.returncode
 
 
@@ -212,7 +215,7 @@ def render_print_form(dg: DeltaGenerator):
     if dur is not None:
         data["duration"] = dur
 
-    print("data:", data)
+    lg.debug("data: %s", data)
 
     # render print data
     tmpl_str = ""
@@ -221,13 +224,12 @@ def render_print_form(dg: DeltaGenerator):
 
     template = Template(source=tmpl_str)
     rendered = template.render(data)
-    print("rendered:|-")
-    print(rendered)
+    lg.debug("rendered:\n%s", rendered)
 
     # create preview
     sout, serr, ret = call_preview(rendered)
     if ret != 0:
-        print("failed to create preview", "code:", ret, "stderr:", serr)
+        lg.error("failed to create preview: code: %s, stderr: %s", ret, serr)
 
     svgstr = sout
     # resize SVG to fit the container
@@ -298,6 +300,8 @@ def render_page():
     for fp in st.session_state.style["css_paths"]:
         css_register_from_file(fp)
     css_apply()
+
+    lg.debug("rendered")
 
 
 render_page()

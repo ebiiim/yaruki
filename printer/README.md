@@ -5,10 +5,10 @@
     ```
 
 2. Edit files below to configure printers
-   - `config/preview.json` both for preview and print
-   - `config/print.json` for print
+    - `config/preview.json` both for preview and print
+    - `config/print.json` for print
 
-   Config directory can be set with environment variable `PRINTER_CONFIG_DIR`.
+    Config directory can be set with environment variable `PRINTER_CONFIG_DIR`.
 
 3. Run
     ```
