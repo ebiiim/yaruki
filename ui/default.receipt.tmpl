@@ -6,8 +6,8 @@
 {% endif -%}
 |^^`{{ title }}`
 {width:9 *}
-受付時刻 |^^^{{ receipt_date }}
-締切時刻 |^^^{{ due_date }}
-所要時間 |^^^{{ time_required -}}
+{{ receipt_date_index_format }}受付時刻 |{{ receipt_date_format }}{{ receipt_date }}
+{{ deadline_index_format }}締切時刻 |{{ deadline_format }}{{ deadline }}
+{{ duration_index_format}}所要時間 |{{ duration_format }}{{ duration -}}
 {% if body != "" %}
-\nメモ |{{ body }}{% endif -%}
+{{ body_index_format }}メモ |{{ body_format }}{{ body }}{% endif -%}

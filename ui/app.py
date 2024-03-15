@@ -2,7 +2,7 @@ import os
 import json
 import time
 import datetime
-from typing import Tuple
+from typing import Tuple, List
 from pathlib import Path
 from subprocess import Popen, PIPE
 import re
@@ -47,6 +47,59 @@ def render_footer(dg: DeltaGenerator):
     dg.markdown("<center><footer><p>&#169; 2024 ebiiim</p></footer></center>", unsafe_allow_html=True)
 
 
+def css_apply():
+    css = f"""
+<style>
+{"\n".join([v for k, v in st.session_state.style["__css"].items()])}
+</style>
+"""
+    print("css:", css)
+    st.markdown(css, unsafe_allow_html=True)
+
+
+def css_registerer(css_generate_func):
+    def wrapper(*args, **kwargs):
+        if "__css" not in st.session_state.style:
+            st.session_state.style["__css"] = {}
+        key, css = css_generate_func(*args, **kwargs)
+        st.session_state.style["__css"][key] = css
+    return wrapper
+
+
+@css_registerer
+def css_register_raw(key: str, css: str) -> Tuple[str, str]:
+    return key, css
+
+
+@css_registerer
+def css_register_from_file(fp: str) -> Tuple[str, str]:
+    with open(fp, "r", encoding="utf-8") as f:
+        return f"__from_file_{fp}", f.read()
+
+
+@css_registerer
+def css_register_radio_grid(label: str, grid_x: int, gap_px: int = 5) -> Tuple[str, str]:
+    key = f"__radio_grid_{label}"
+    css = f""".stRadio [role="radiogroup"][aria-label="{label}"]{{
+    display: grid; /* grid layout */
+    grid-template-columns: repeat({grid_x}, 1fr); /* 3 columns per row */
+    gap: {gap_px}px; /* space between rows */
+}}"""
+    return key, css
+
+
+TIME_FORMATS = [
+    # https://docs.python.org/3/library/datetime.html#format-codes
+    "%a", "%A", "%w", "%d", "%b", "%B", "%m", "%y", "%Y", "%H", "%I", "%p", "%M", "%S", "%f", "%z", "%Z", "%j", "%U", "%W", "%c", "%x", "%X", "%%",
+    "%G", "%u", "%V", "%:z",
+    "%-d", "%-m", "%-y", "%-H", "%-I", "%-M", "%-S", "%-j"
+]
+
+
+def format_time(s: str, t: datetime.datetime, fmt: str) -> str:
+    return s.replace(fmt, t.strftime(fmt))
+
+
 def call_preview(msg: str, basedir: str = "..") -> Tuple[str, str, int]:
     cmd = f"npm run --prefix {basedir}/printer --silent preview -- -"
     p = Popen(cmd.split(' '), stdout=PIPE, stdin=PIPE, stderr=PIPE)
@@ -63,123 +116,107 @@ def call_print(msg: str, basedir: str = "..") -> Tuple[str, str, int]:
 
 def render_print_form(dg: DeltaGenerator):
     c = dg.container()
-    c.write("###### プロジェクト")
-    pjs = []  # selected projects [bool, ...]
-    c11, c12, c13, c14 = c.columns(4)
-    for idx, pj in enumerate(st.session_state["projects"]):
-        if idx % 4 == 0:
-            pjs.append(c11.checkbox(pj))
-        if idx % 4 == 1:
-            pjs.append(c12.checkbox(pj))
-        if idx % 4 == 2:
-            pjs.append(c13.checkbox(pj))
-        if idx % 4 == 3:
-            pjs.append(c14.checkbox(pj))
 
-    title = c.text_input("###### タイトル", placeholder="○○さんのメールに返信する")
+    pj = c.radio("###### プロジェクト", st.session_state.projects, index=None, horizontal=True)
+    css_register_radio_grid("###### プロジェクト", st.session_state.style["projects_per_row"])
 
-    c.write("###### 優先度")
-    c21, c22, c23, c24, = c.columns(4)
-    prios = []  # selected priorities [bool, ...]
-    for idx, prio in enumerate(st.session_state["priorities"]):
-        if idx % 4 == 0:
-            prios.append(c21.checkbox(prio))
-        if idx % 4 == 1:
-            prios.append(c22.checkbox(prio))
-        if idx % 4 == 2:
-            prios.append(c23.checkbox(prio))
-        if idx % 4 == 3:
-            prios.append(c24.checkbox(prio))
+    c11, c12 = c.columns(2)
+    title = c11.text_input("###### タイトル", placeholder="○○さんのメールに返信する")
 
-    c.write("###### 所要時間")
-    c31, c32, c33, c34, c35, c36 = c.columns(6)
-    d30 = c31.checkbox("30分")
-    d60 = c32.checkbox("1時間")
-    d120 = c33.checkbox("2時間")
-    dhd = c34.checkbox("半日")
-    d1d = c35.checkbox("1日")
-    d3d = c36.checkbox("3日")
+    c12.write("###### 表示設定")
+    c121, c122 = c12.columns(2)
+
+    hide_receipt_date = c121.checkbox("受付時刻を隠す", value=False)
+    no_placeholder = c122.checkbox("空欄そのまま", value=False)
+    placeholder_text = "　" if no_placeholder else "########"
+    body_large = c121.checkbox("メモを大きく", value=False)
+
+    prio = c.radio("###### 優先度", st.session_state.priorities, index=None, horizontal=True)
+    "###### 優先度", css_register_radio_grid("###### 優先度", st.session_state.style["priorities_per_row"])
+
+    dur = c.radio("###### 所要時間", st.session_state.durations, index=None, horizontal=True)
+    "###### 所要時間", css_register_radio_grid("###### 所要時間", st.session_state.style["durations_per_row"])
 
     tA = datetime.datetime.now()
     tA = tA.replace(second=0, microsecond=0)
     tB = tA + datetime.timedelta(days=1)
     tB = tB.replace(hour=19)
 
-    c41, c42, c43, c44 = c.columns(4)
-    c42.write("")  # spacer
-    c43.write("")  # spacer
-    c44.write("")  # spacer
-    due_today = c42.checkbox("**本日中**")
-    due_tomorrow = c43.checkbox("**明日中**")
-    due_week = c44.checkbox("**今週中**")
-    due_asa = c42.checkbox("朝イチ")
-    due_gogo = c43.checkbox("午後イチ")
-    due_teiji = c44.checkbox("定時", value=True)
-    due_date_disabled = True if due_today or due_tomorrow or due_week else False
-    due_date = c41.date_input("###### いつまで", value=tB, disabled=due_date_disabled)
+    c21, c22 = c.columns(2)
 
-    c51, c52 = c.columns(2)
-    body = c51.text_area("###### メモ", height=228, placeholder="資料がどっかにあるはず")
-    c52.write("###### プレビュー")
+    dl_display = c22.radio("###### いつまで(2)", [d["display"] for d in st.session_state.deadlines], index=None, horizontal=True, label_visibility="collapsed")
+    css_register_radio_grid("###### いつまで(2)", st.session_state.style["deadlines_per_row"])
 
-    c61, c62, _, _, _, _ = c.columns(6)
-    btn_print = c61.button("印刷", type="primary")
-    btn_reset = c62.button("リセット")
+    dl = None
+    dl_date_disabled = False
+    if dl_display is not None:
+        for _, v in enumerate(st.session_state.deadlines):
+            if v["display"] == dl_display:
+                dl = v
+                break
+        # check if the deadline format contains any time format (then activate the date input)
+        has_time_format = False
+        for fmt in TIME_FORMATS:
+            if fmt in dl["print"]:
+                has_time_format = True
+                break
+        dl_date_disabled = not has_time_format
+    dl_date = c21.date_input("###### いつまで", value=tB, disabled=dl_date_disabled)
+
+    c31, c32 = c.columns(2)
+    body = c31.text_area("###### メモ", height=228, placeholder="資料がどっかにあるはず")
+    c32.write("###### プレビュー")
+
+    c41, c42, _, _, _, _ = c.columns(6)
+    btn_print = c41.button("プリント", type="primary")
+    btn_reset = c42.button("リセット")
 
     # construct print data
     data = {
         "project": "",
         "priority": "",
-        "receipt_date": tA.strftime("%m/%d %H:%M"),
-        "due_date": "********",
-        "time_required": "********",
+        "receipt_date": tA.strftime("%m/%d %H:%M") if not hide_receipt_date else placeholder_text,
+        "receipt_date_format": "^^^",
+        "receipt_date_index_format": "",
+        "deadline": placeholder_text,
+        "deadline_format": "^^^",
+        "deadline_index_format": "",
+        "duration": placeholder_text,
+        "duration_format": "^^^",
+        "duration_index_format": "",
         "title": "",
         "body": "",
+        "body_format": "",
+        "body_index_format": "\n",
     }
+
+    if pj is not None:
+        data["project"] = pj
+    if prio is not None:
+        data["priority"] = prio
 
     if title != "":
         data["title"] = title
     if body != "":
         data["body"] = f"{body.replace("\n", "\\n")}"  # escape newline
+    if body_large:
+        data["body_format"] = "^^"
+        data["body_index_format"] = ""
 
-    for idx, pj in enumerate(st.session_state["projects"]):
-        if pjs[idx]:
-            data["project"] = f"{pj}"
-    for idx, prio in enumerate(st.session_state["priorities"]):
-        if prios[idx]:
-            data["priority"] = f"{prio}"
+    if dl is not None:
+        dl_str = dl["print"]
+        for fmt in TIME_FORMATS:  # replace %m, %d, ...
+            dl_str = format_time(dl_str, dl_date, fmt)
+        data["deadline"] = dl_str
 
-    if due_today:
-        data["due_date"] = "`本日中`"
-    elif due_tomorrow:
-        data["due_date"] = "`明日中`"
-    elif due_week:
-        data["due_date"] = "`今週中`"
-    elif due_asa:
-        data["due_date"] = f"`{due_date.strftime("%m/%d")} 朝`"
-    elif due_gogo:
-        data["due_date"] = f"`{due_date.strftime("%m/%d")} 昼`"
-    elif due_teiji:
-        data["due_date"] = f"`{due_date.strftime("%m/%d")} 定時`"
+    if dur is not None:
+        data["duration"] = dur
 
-    if d30:
-        data["time_required"] = "30分"
-    elif d60:
-        data["time_required"] = "1時間"
-    elif d120:
-        data["time_required"] = "2時間"
-    elif dhd:
-        data["time_required"] = "半日"
-    elif d1d:
-        data["time_required"] = "1日"
-    elif d3d:
-        data["time_required"] = "3日"
-
-    print("current data:", data)
+    print("data:", data)
 
     # render print data
     tmpl_str = ""
-    with open(st.session_state.config["template_path"], "r", encoding="utf-8") as f:
+    with open(st.session_state.print["template_path"], "r", encoding="utf-8") as f:
         tmpl_str = f.read()
 
     template = Template(source=tmpl_str)
@@ -195,7 +232,7 @@ def render_print_form(dg: DeltaGenerator):
     svgstr = sout
     # resize SVG to fit the container
     svgstr = re.sub(r'<svg width="(.+px)" height="(.+px)"', r'<svg width="280px" height="100%"', svgstr)
-    c52c = c52.container(border=True)
+    c52c = c32.container(border=True)
     c52c.write(svgstr, unsafe_allow_html=True)
 
     is_printable = True
@@ -224,7 +261,7 @@ stderr:\n
             st.rerun()
 
         # save to file
-        outdir = Path(st.session_state.config["output_dir"]).resolve()
+        outdir = Path(st.session_state.print["output_dir"]).resolve()
         if not outdir.exists():
             outdir.mkdir(parents=True)
         # replace illegal characters https://stackoverflow.com/questions/7406102/create-sane-safe-filename-from-any-unsafe-string
@@ -246,15 +283,20 @@ stderr:\n
 
 def render_page():
 
+    # init
     init_session_state()
     set_title()
 
+    # render content
     st.write("### やる気")
-
     c = st.container(border=True)
     render_print_form(c)
-
     render_footer(st)
+
+    # apply css
+    for fp in st.session_state.style["css_paths"]:
+        css_register_from_file(fp)
+    css_apply()
 
 
 render_page()

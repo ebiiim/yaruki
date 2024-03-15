@@ -1,16 +1,59 @@
 {
     "projects": [
-        "プロジェクト1",
-        "プロジェクト2",
-        "プロジェクト3",
-        "プロジェクト4"
+        "生活",
+        "仕事",
+        "趣味",
+        "その他"
     ],
     "priorities": [
         "なるはや",
         "最優先",
         "じっくり検討"
     ],
-    "config": {
+    "durations": [
+        "30分",
+        "1時間",
+        "2時間",
+        "半日",
+        "1日",
+        "3日"
+    ],
+    "deadlines": [
+        {
+            "display": "**本日中**",
+            "print": "`本日中`"
+        },
+        {
+            "display": "**明日中**",
+            "print": "`明日中`"
+        },
+        {
+            "display": "**今週中**",
+            "print": "`今週中`"
+        },
+        {
+            "display": "朝イチ",
+            "print": "`%m/%d 朝`"
+        },
+        {
+            "display": "お昼",
+            "print": "`%m/%d 昼`"
+        },
+        {
+            "display": "定時",
+            "print": "`%m/%d 定時`"
+        }
+    ],
+    "style": {
+        "css_paths": [
+            "default.css"
+        ],
+        "projects_per_row": 4,
+        "priorities_per_row": 3,
+        "durations_per_row": 6,
+        "deadlines_per_row": 3
+    },
+    "print": {
         "template_path": "default.receipt.tmpl",
         "output_dir": "output"
     }
