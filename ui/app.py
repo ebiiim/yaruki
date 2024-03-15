@@ -232,7 +232,7 @@ def render_print_form(dg: DeltaGenerator):
     svgstr = sout
     # resize SVG to fit the container
     svgstr = re.sub(r'<svg width="(.+px)" height="(.+px)"', r'<svg width="280px" height="100%"', svgstr)
-    svgstr = svgstr.replace("*", "\*")  # asterisk must be escaped here
+    svgstr = svgstr.replace("*", "\*")  # asterisk must be escaped here so please ignore the warning
     c52c = c32.container(border=True)
     c52c.write(svgstr, unsafe_allow_html=True)
 
