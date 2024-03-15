@@ -128,7 +128,7 @@ def render_print_form(dg: DeltaGenerator):
 
     hide_receipt_date = c121.checkbox("受付時刻を隠す", value=False)
     no_placeholder = c122.checkbox("空欄そのまま", value=False)
-    placeholder_text = "　" if no_placeholder else "########"
+    placeholder_text = "　" if no_placeholder else "********"
     body_large = c121.checkbox("メモを大きく", value=False)
 
     prio = c.radio("###### 優先度", st.session_state.priorities, index=None, horizontal=True)
@@ -232,6 +232,7 @@ def render_print_form(dg: DeltaGenerator):
     svgstr = sout
     # resize SVG to fit the container
     svgstr = re.sub(r'<svg width="(.+px)" height="(.+px)"', r'<svg width="280px" height="100%"', svgstr)
+    svgstr = svgstr.replace("*", "\*")  # asterisk must be escaped here
     c52c = c32.container(border=True)
     c52c.write(svgstr, unsafe_allow_html=True)
 
