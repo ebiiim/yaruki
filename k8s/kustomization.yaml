@@ -1,0 +1,8 @@
+resources:
+  - cm-ui.yaml
+  - cm-printer.yaml
+  - deploy.yaml
+  - svc.yaml
+  # - ing.yaml # you may need an Ingress to expose the service
+
+namespace: yaruki

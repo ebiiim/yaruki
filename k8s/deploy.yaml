@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: yaruki
+spec:
+  selector:
+    matchLabels:
+      app: yaruki
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: yaruki
+    spec:
+      volumes:
+        - name: yaruki-ui-config
+          configMap:
+            name: yaruki-ui-config
+        - name: yaruki-printer-config
+          configMap:
+            name: yaruki-printer-config
+      containers:
+        - name: yaruki
+          image: yaruki
+          env:
+            - name: YARUKI_UI_CONFIG
+              value: /config/yaruki-ui/config.json
+            - name: YARUKI_UI_LOG_LEVEL
+              value: DEBUG # INFO or DEBUG
+            - name: PRINTER_CONFIG_DIR
+              value: /config/yaruki-printer
+          volumeMounts:
+            - mountPath: /config/yaruki-ui
+              name: yaruki-ui-config
+            - mountPath: /config/yaruki-printer
+              name: yaruki-printer-config
+          ports:
+            - containerPort: 8501
+          resources: {}
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8501
+            initialDelaySeconds: 5
+            periodSeconds: 3
+            timeoutSeconds: 2
+            successThreshold: 1
+            failureThreshold: 3

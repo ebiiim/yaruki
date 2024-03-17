@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: yaruki
+spec:
+  ports:
+    - port: 80
+      targetPort: 8501
+  selector:
+    app: yaruki
