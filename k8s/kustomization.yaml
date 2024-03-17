@@ -9,5 +9,5 @@ namespace: yaruki
 
 images:
   - name: yaruki
-    newTag: v0.1.0-beta.1
     newName: ghcr.io/ebiiim/yaruki
+    newTag: v0.1.0-rc.1
