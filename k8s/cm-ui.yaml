@@ -3,7 +3,7 @@ kind: ConfigMap
 metadata:
   name: yaruki-ui-config
 data:
-  config.json: |
+  config.json: |-
     {
       "projects": [
         "生活",
@@ -52,7 +52,7 @@ data:
       ],
       "style": {
         "css_paths": [
-          "default.css"
+          "/config/yaruki-ui/default.css"
         ],
         "projects_per_row": 4,
         "priorities_per_row": 3,
@@ -60,7 +60,23 @@ data:
         "deadlines_per_row": 3
       },
       "print": {
-        "template_path": "default.receipt.tmpl",
+        "template_path": "/config/yaruki-ui/default.receipt.tmpl",
         "output_dir": "output"
       }
     }
+  default.receipt.tmpl: |- # this file is newline-sensitive
+    {% if priority == "" and project != "" %}|^^{{ project }}
+    {% endif -%}
+    {% if priority != "" and project == "" %}|^^`{{ priority }}`
+    {% endif -%}
+    {% if priority != "" and project != "" %}|^^`{{ priority }}` {{ project }}
+    {% endif -%}
+    |^^`{{ title }}`
+    {width:9 *}
+    {{ receipt_date_index_format }}受付時刻 |{{ receipt_date_format }}{{ receipt_date }}
+    {{ deadline_index_format }}締切時刻 |{{ deadline_format }}{{ deadline }}
+    {{ duration_index_format}}所要時間 |{{ duration_format }}{{ duration -}}
+    {% if body != "" %}
+    {{ body_index_format }}メモ |{{ body_format }}{{ body }}{% endif -%}
+  default.css: |-
+    /* paste your css here */

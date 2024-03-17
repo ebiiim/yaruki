@@ -6,3 +6,8 @@ resources:
   # - ing.yaml # you may need an Ingress to expose the service
 
 namespace: yaruki
+
+images:
+  - name: yaruki
+    newTag: v0.1.0-beta.1
+    newName: ghcr.io/ebiiim/yaruki
