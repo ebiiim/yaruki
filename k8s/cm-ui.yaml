@@ -61,7 +61,7 @@ data:
       },
       "print": {
         "template_path": "/config/yaruki-ui/default.receipt.tmpl",
-        "output_dir": "output"
+        "output_dir": "/output"
       }
     }
   default.receipt.tmpl: |- # this file is newline-sensitive

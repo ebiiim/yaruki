@@ -19,6 +19,8 @@ spec:
         - name: yaruki-printer-config
           configMap:
             name: yaruki-printer-config
+        - name: yaruki-output
+          emptyDir: {}
       containers:
         - name: yaruki
           image: yaruki
@@ -34,6 +36,8 @@ spec:
               name: yaruki-ui-config
             - mountPath: /config/yaruki-printer
               name: yaruki-printer-config
+            - mountPath: /output
+              name: yaruki-output
           ports:
             - containerPort: 8501
           resources: {}
