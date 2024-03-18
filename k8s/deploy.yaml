@@ -31,6 +31,8 @@ spec:
               value: INFO # INFO or DEBUG
             - name: PRINTER_CONFIG_DIR
               value: /config/yaruki-printer
+            - name: TZ
+              value: Asia/Tokyo
           volumeMounts:
             - mountPath: /config/yaruki-ui
               name: yaruki-ui-config
